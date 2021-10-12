@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User page</title>
+</head>
+<body>
+    <% allusers.forEach(function(users){ %>
+    <h2><%= users.name %> - of id : <%= users.id %></h2>
+    <p>password : <%= users.password %> </p>
+    <a href= <%= '/delete/' + users.id %>>delete user</a>
+    <a href= <%= '/update/' + users.id %>>update user</a>
+    <% }) %>
+    
+</body>
+</html>
