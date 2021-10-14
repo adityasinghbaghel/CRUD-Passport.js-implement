@@ -1,52 +1,48 @@
 var express = require('express');
+var passport = require('passport');
 var router = express.Router();
-var userModel = require('./users')
-var fs = require('fs');
+var User = require('./users')
+var passportLocal = require('passport-local')
+passport.use(new passportLocal(User.authenticate()));
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/' , function(req,res,next){
   res.render('index');
 });
 
-router.post('/register' , function(req,res){
-  userModel.create({
-    name : req.body.name,
-    password : req.body.password
-  }).then(function(createdUser){
-      res.send(createdUser);
+router.post('/register' , function(req,res ,next){
+var newUser = new User({
+  name  : req.body.name,
+  username : req.body.username
+  })
+  User.register(newUser , req.body.password)
+    .then(function(registeredUser){
+      passport.authenticate('local')(req,res,function(){
+        res.redirect('/profile')
+      })
     })
 })
 
-router.get('/users' , function(req,res){
-  userModel.find()
-    .then(function(allusers){
-      res.render('users' , {allusers : allusers})
-    })
-});
+router.post('/login' , passport.authenticate('local' , {
+  successRedirect : '/profile',
+  failureRedirect : '/'
+}) ,function(req,res){})
 
-router.get('/delete/:id' , function(req ,res){
-userModel.findOneAndDelete({_id : req.params.id})
-    .then(function(deletedUser){
-      res.redirect('/users')
-      res.send(deletedUser)
-
-    })
+router.get('/logout' , function(req,res){
+  req.logOut();
+  res.redirect('/')
 })
 
-router.get('/update/:id' , function(req,res){
-  userModel.findOne({_id : req.params.id })
-     .then(function(foundUser){
-       res.render('update' , {foundUser: foundUser})
-     })
+router.get('/profile' , isloggedin , function(req , res){
+res.render('profile')
 })
 
-router.post('/updateuser/:id' , function(req,res){
-  userModel.findOneAndUpdate({_id : req.params.id} , {name : req.body.name , password: req.body.password })
-        .then(function(updatedUser){
-          res.redirect('/users')
-        })
-})
-
-
+function isloggedin(req , res ,next){
+  if(req.isAuthenticated()){
+    return next();
+  }
+  else{
+    res.redirect('/')
+  }
+}
 
 module.exports = router;
