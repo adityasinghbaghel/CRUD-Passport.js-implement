@@ -1,3 +1,3 @@
 # CRUD-Passport.js-implementation
 
-passport.js prac
+passport.js prac for registration of user and authentication
